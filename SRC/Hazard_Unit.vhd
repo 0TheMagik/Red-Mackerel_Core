@@ -4,9 +4,12 @@ use IEEE.numeric_std.all;
 
 entity Hazard_Unit is
     port (
-        in_rs1_addr     : in std_logic_vector(4 downto 0);
-        in_rs2_addr     : in std_logic_vector(4 downto 0);
-        in_rd_addr      : in std_logic_vector(4 downto 0);
+        in_rs1_addr_EX  : in std_logic_vector(4 downto 0);
+        in_rs2_addr_EX  : in std_logic_vector(4 downto 0);
+        in_rd_addr_EX   : in std_logic_vector(4 downto 0);
+        in_rs1_addr_ID  : in std_logic_vector(4 downto 0);
+        in_rs2_addr_ID  : in std_logic_vector(4 downto 0);
+        in_rd_addr_ID   : in std_logic_vector(4 downto 0);
         wb              : in std_logic;
         stall           : out std_logic
     );
@@ -15,24 +18,22 @@ end entity Hazard_Unit;
 
 architecture rtl of Hazard_Unit is
 
-    signal rs1_addr             : std_logic_vector(4 downto 0) := "00000";    
-    signal rs2_addr             : std_logic_vector(4 downto 0) := "00000";    
-    signal rd_addr              : std_logic_vector(4 downto 0) := "00000";    
     signal internal_stall       : std_logic := '0';
+
 begin
-    Hazard : process(in_rs1_addr, in_rs2_addr, in_rd_addr, wb)
+    Hazard : process(in_rs1_addr_EX, in_rs2_addr_EX, in_rd_addr_EX, wb)
     begin
-        if in_rs1_addr /= "00000" OR in_rs2_addr /= "00000" then
-            if in_rs1_addr = rd_addr OR in_rs2_addr = rd_addr then
+        if in_rs1_addr_EX /= "00000" OR in_rs2_addr_EX /= "00000" then
+            if in_rs1_addr_EX = in_rd_addr_ID OR in_rs2_addr_EX = in_rd_addr_ID then
                 internal_stall <= '1';
             else
                 internal_stall <= '0';
             end if;
         else
             internal_stall <= '0';
-            rs1_addr <= in_rs1_addr;
-            rs2_addr <= in_rs2_addr;
-            rd_addr  <= in_rd_addr;
+            -- in_rs1_addr_ID <= in_rs1_addr_EX;
+            -- in_rs2_addr_ID <= in_rs2_addr_EX;
+            -- in_rd_addr_ID  <= in_rd_addr_EX;
         end if;
         -- case wb  is
         --     when '0' =>

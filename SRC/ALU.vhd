@@ -15,7 +15,17 @@ end entity ALU;
 architecture rtl of ALU is
     
 begin
-    
+    logic: process(funct_3, funct_7)
+    begin
+        case funct_3 is
+            when choice =>
+                
+        
+            when others =>
+                
+        
+        end case;
+    end process logic;
     
     
 end architecture rtl;

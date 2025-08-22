@@ -51,7 +51,7 @@ architecture rtl of State_Decode is
 
 begin
 
-    Decode_Register: process(clk, rst)
+    Decode_Register: process(clk, rst, stall)
     begin
         if rst = '1' then
             instruction     <= x"00000000";
