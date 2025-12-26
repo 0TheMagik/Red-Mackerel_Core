@@ -215,16 +215,16 @@ architecture rtl of Core is
             out_sel_mux_exe     => sel_mux_exe_EX
         );
 
-        Hazard_Detection: Hazard_Unit
-        port map(
-            in_rs1_addr_EX      => rs1_EX,
-            in_rs2_addr_EX      => rs2_EX,
-            in_rd_addr_EX       => rd_EX,
-            in_rs1_addr_ID      => rs1_ID,
-            in_rs2_addr_ID      => rs2_ID,
-            in_rd_addr_ID       => rd_ID,
-            wb                  => '0',
-            stall               => stall
-        );
+        -- Hazard_Detection: Hazard_Unit
+        -- port map(
+        --     in_rs1_addr_EX      => rs1_EX,
+        --     in_rs2_addr_EX      => rs2_EX,
+        --     in_rd_addr_EX       => rd_EX,
+        --     in_rs1_addr_ID      => rs1_ID,
+        --     in_rs2_addr_ID      => rs2_ID,
+        --     in_rd_addr_ID       => rd_ID,
+        --     wb                  => '0',
+        --     stall               => stall
+        -- );
 
 end architecture rtl;

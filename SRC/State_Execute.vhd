@@ -6,7 +6,7 @@ entity State_Execute is
     port (
         clk                 : in std_logic;
         rst                 : in std_logic;
-        stall               : in std_logic;
+        stall               : in std_logic
         
         
     );

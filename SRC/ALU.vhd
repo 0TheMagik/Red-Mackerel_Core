@@ -30,7 +30,7 @@ begin
                 end if;
 
             when "001" => -- sll
-                result <= std_logic_vector(shift_left(unsigned(in_alu_0), to_integer(unsigned(in_alu_1))))
+                result <= std_logic_vector(shift_left(unsigned(in_alu_0), to_integer(unsigned(in_alu_1))));
 
             when "010" => -- slt
                 if (signed(in_alu_0(31) & in_alu_0) < signed(in_alu_0(31) & in_alu_1)) then
@@ -47,7 +47,7 @@ begin
                 end if;
 
             when "100" => -- XOR
-                result <= in_alu_0 
+                result <= in_alu_0 ;
 
             when "101" => 
                 if funct_7 = "0000000" then -- srl
@@ -57,6 +57,7 @@ begin
                     result <= std_logic_vector(signed(in_alu_0(31) & in_alu_0) - signed(in_alu_1 (31) & in_alu_1));
 
                 end if;
+                
             when "110" => -- or
 
             when "111" => -- and

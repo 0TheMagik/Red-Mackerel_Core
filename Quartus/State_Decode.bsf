@@ -1,0 +1,205 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 2025  Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Altera and sold by Altera or its authorized distributors.  Please
+refer to the Altera Software License Subscription Agreements 
+on the Quartus Prime software download page.
+*/
+(header "symbol" (version "1.2"))
+(symbol
+	(rect 64 64 320 336)
+	(text "State_Decode" (rect 5 0 74 10)(font "Arial" ))
+	(text "inst" (rect 8 256 25 266)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "clk" (rect 0 0 14 10)(font "Arial" ))
+		(text "clk" (rect 21 27 35 37)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "rst" (rect 0 0 12 10)(font "Arial" ))
+		(text "rst" (rect 21 43 33 53)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "stall" (rect 0 0 20 10)(font "Arial" ))
+		(text "stall" (rect 21 59 41 69)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "in_instruction[31..0]" (rect 0 0 96 10)(font "Arial" ))
+		(text "in_instruction[31..0]" (rect 21 235 117 245)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80)(line_width 3))
+	)
+	(port
+		(pt 0 96)
+		(input)
+		(text "in_funct_3[2..0]" (rect 0 0 77 10)(font "Arial" ))
+		(text "in_funct_3[2..0]" (rect 21 91 98 101)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96)(line_width 3))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "in_funct_7[6..0]" (rect 0 0 77 10)(font "Arial" ))
+		(text "in_funct_7[6..0]" (rect 21 107 98 117)(font "Arial" ))
+		(line (pt 0 112)(pt 16 112)(line_width 3))
+	)
+	(port
+		(pt 0 128)
+		(input)
+		(text "in_immediate[31..0]" (rect 0 0 96 10)(font "Arial" ))
+		(text "in_immediate[31..0]" (rect 21 123 117 133)(font "Arial" ))
+		(line (pt 0 128)(pt 16 128)(line_width 3))
+	)
+	(port
+		(pt 0 144)
+		(input)
+		(text "in_rs1_addr[4..0]" (rect 0 0 82 10)(font "Arial" ))
+		(text "in_rs1_addr[4..0]" (rect 21 139 103 149)(font "Arial" ))
+		(line (pt 0 144)(pt 16 144)(line_width 3))
+	)
+	(port
+		(pt 0 160)
+		(input)
+		(text "in_rs2_addr[4..0]" (rect 0 0 82 10)(font "Arial" ))
+		(text "in_rs2_addr[4..0]" (rect 21 155 103 165)(font "Arial" ))
+		(line (pt 0 160)(pt 16 160)(line_width 3))
+	)
+	(port
+		(pt 0 176)
+		(input)
+		(text "in_rd_addr[4..0]" (rect 0 0 76 10)(font "Arial" ))
+		(text "in_rd_addr[4..0]" (rect 21 171 97 181)(font "Arial" ))
+		(line (pt 0 176)(pt 16 176)(line_width 3))
+	)
+	(port
+		(pt 0 192)
+		(input)
+		(text "in_rs1_data[31..0]" (rect 0 0 88 10)(font "Arial" ))
+		(text "in_rs1_data[31..0]" (rect 21 187 109 197)(font "Arial" ))
+		(line (pt 0 192)(pt 16 192)(line_width 3))
+	)
+	(port
+		(pt 0 208)
+		(input)
+		(text "in_rs2_data[31..0]" (rect 0 0 88 10)(font "Arial" ))
+		(text "in_rs2_data[31..0]" (rect 21 203 109 213)(font "Arial" ))
+		(line (pt 0 208)(pt 16 208)(line_width 3))
+	)
+	(port
+		(pt 0 224)
+		(input)
+		(text "in_rd_write_en" (rect 0 0 69 10)(font "Arial" ))
+		(text "in_rd_write_en" (rect 21 219 90 229)(font "Arial" ))
+		(line (pt 0 224)(pt 16 224))
+	)
+	(port
+		(pt 0 240)
+		(input)
+		(text "in_sel_mux_exe" (rect 0 0 79 10)(font "Arial" ))
+		(text "in_sel_mux_exe" (rect 21 75 100 85)(font "Arial" ))
+		(line (pt 0 240)(pt 16 240))
+	)
+	(port
+		(pt 256 32)
+		(output)
+		(text "out_instruction[31..0]" (rect 0 0 103 10)(font "Arial" ))
+		(text "out_instruction[31..0]" (rect 148 27 235 37)(font "Arial" ))
+		(line (pt 256 32)(pt 240 32)(line_width 3))
+	)
+	(port
+		(pt 256 48)
+		(output)
+		(text "out_funct_3[2..0]" (rect 0 0 84 10)(font "Arial" ))
+		(text "out_funct_3[2..0]" (rect 164 43 235 53)(font "Arial" ))
+		(line (pt 256 48)(pt 240 48)(line_width 3))
+	)
+	(port
+		(pt 256 64)
+		(output)
+		(text "out_funct_7[6..0]" (rect 0 0 84 10)(font "Arial" ))
+		(text "out_funct_7[6..0]" (rect 164 59 235 69)(font "Arial" ))
+		(line (pt 256 64)(pt 240 64)(line_width 3))
+	)
+	(port
+		(pt 256 80)
+		(output)
+		(text "out_immediate[31..0]" (rect 0 0 103 10)(font "Arial" ))
+		(text "out_immediate[31..0]" (rect 148 75 235 85)(font "Arial" ))
+		(line (pt 256 80)(pt 240 80)(line_width 3))
+	)
+	(port
+		(pt 256 96)
+		(output)
+		(text "out_rs1_addr[4..0]" (rect 0 0 89 10)(font "Arial" ))
+		(text "out_rs1_addr[4..0]" (rect 160 91 235 101)(font "Arial" ))
+		(line (pt 256 96)(pt 240 96)(line_width 3))
+	)
+	(port
+		(pt 256 112)
+		(output)
+		(text "out_rs2_addr[4..0]" (rect 0 0 89 10)(font "Arial" ))
+		(text "out_rs2_addr[4..0]" (rect 160 107 235 117)(font "Arial" ))
+		(line (pt 256 112)(pt 240 112)(line_width 3))
+	)
+	(port
+		(pt 256 128)
+		(output)
+		(text "out_rd_addr[4..0]" (rect 0 0 83 10)(font "Arial" ))
+		(text "out_rd_addr[4..0]" (rect 165 123 235 133)(font "Arial" ))
+		(line (pt 256 128)(pt 240 128)(line_width 3))
+	)
+	(port
+		(pt 256 144)
+		(output)
+		(text "out_rs1_data[31..0]" (rect 0 0 95 10)(font "Arial" ))
+		(text "out_rs1_data[31..0]" (rect 155 139 235 149)(font "Arial" ))
+		(line (pt 256 144)(pt 240 144)(line_width 3))
+	)
+	(port
+		(pt 256 160)
+		(output)
+		(text "out_rs2_data[31..0]" (rect 0 0 95 10)(font "Arial" ))
+		(text "out_rs2_data[31..0]" (rect 155 155 235 165)(font "Arial" ))
+		(line (pt 256 160)(pt 240 160)(line_width 3))
+	)
+	(port
+		(pt 256 176)
+		(output)
+		(text "out_rd_write_en" (rect 0 0 76 10)(font "Arial" ))
+		(text "out_rd_write_en" (rect 171 171 235 181)(font "Arial" ))
+		(line (pt 256 176)(pt 240 176))
+	)
+	(port
+		(pt 256 192)
+		(output)
+		(text "out_sel_mux_exe" (rect 0 0 86 10)(font "Arial" ))
+		(text "out_sel_mux_exe" (rect 163 187 235 197)(font "Arial" ))
+		(line (pt 256 192)(pt 240 192))
+	)
+	(drawing
+		(rectangle (rect 16 16 240 256))
+	)
+)
