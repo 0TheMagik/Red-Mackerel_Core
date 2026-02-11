@@ -12,7 +12,7 @@ entity Mux_2to1 is
 end entity Mux_2to1;
 
 
-architecture rtl of Mux_2to1 is
+architecture behavioral of Mux_2to1 is
     
 begin
     with sel_mux select 
@@ -22,4 +22,4 @@ begin
             x"00000000" when others;
     
     
-end architecture rtl;
+end architecture behavioral;

@@ -4,17 +4,17 @@ use IEEE.numeric_std.all;
 
 entity Decoder_RV32I is
     port (
-        clk                 : in std_logic;
-        rst                 : in std_logic;
-        instruction         : in std_logic_vector(31 downto 0);
-        funct_3             : out std_logic_vector(2 downto 0);
-        funct_7             : out std_logic_vector(6 downto 0);
-        rs1                 : out std_logic_vector(4 downto 0);
-        rs2                 : out std_logic_vector(4 downto 0);
-        rd                  : out std_logic_vector(4 downto 0);
-        immediate           : out std_logic_vector(31 downto 0);
-        rd_write_en         : out std_logic;
-        sel_mux_exe         : out std_logic
+        clk            : in std_logic;
+        rst            : in std_logic;
+        instruction    : in std_logic_vector(31 downto 0);
+        -- funct_3        : out std_logic_vector(2 downto 0);
+        -- funct_7        : out std_logic_vector(6 downto 0);
+        rs1            : out std_logic_vector(4 downto 0);
+        rs2            : out std_logic_vector(4 downto 0);
+        rd             : out std_logic_vector(4 downto 0);
+        immediate      : out std_logic_vector(31 downto 0);
+        rd_write_en    : out std_logic;
+        sel_mux_exe    : out std_logic
     );
 end entity Decoder_RV32I;
 
@@ -154,8 +154,8 @@ begin
             end case;
         end if;
     end process Decoding;
-    funct_3             <= internal_funct_3;
-    funct_7             <= internal_funct_7;
+    -- funct_3             <= internal_funct_3;
+    -- funct_7             <= internal_funct_7;
     rs1                 <= internal_rs1;
     rs2                 <= internal_rs2;
     rd                  <= internal_rd;

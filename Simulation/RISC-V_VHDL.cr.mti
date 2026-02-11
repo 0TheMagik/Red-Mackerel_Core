@@ -1,0 +1,73 @@
+D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Register_File.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Register_File.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity Register_File
+-- Compiling architecture rtl of Register_File
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Adder.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Adder.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity Adder
+-- Compiling architecture behavioral of Adder
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/State_ID_EX.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/State_ID_EX.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity State_ID_EX
+-- Compiling architecture rtl of State_ID_EX
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/State_IF_ID.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/State_IF_ID.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity State_IF_ID
+-- Compiling architecture rtl of State_IF_ID
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/PC.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/PC.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity PC
+-- Compiling architecture rtl of PC
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Decoder_RV32I.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Decoder_RV32I.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity Decoder_RV32I
+-- Compiling architecture rtl of Decoder_RV32I
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Mux_2to1.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Mux_2to1.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity Mux_2to1
+-- Compiling architecture behavioral of Mux_2to1
+
+} {} {}} D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Progmem.vhd {1 {vcom -work work -2002 -explicit -vopt -stats=none D:/VsCode_Files/RISC-V_Project/RISC-V_CORE_2.0/SRC/Progmem.vhd
+Questa Intel Starter FPGA Edition-64 vcom 2024.3 Compiler 2024.09 Sep 10 2024
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity Progmem
+-- Compiling architecture rtl of Progmem
+
+} {} {}}

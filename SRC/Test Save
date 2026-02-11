@@ -1,0 +1,11 @@
+clk = U
+rst = U
+IF_ID_instr_out = 32'hXXXXXXXX
+pc_mux_out = 32'hXXXXXXXX
+pc_adder_out = 32'hXXXXXXXX
+pc_out = 32'hXXXXXXXX
+pc_fetched = 32'hXXXXXXXX
+ID_EX_rs1_data = 32'hXXXXXXXX
+ID_EX_rs2_data = 32'hXXXXXXXX
+ID_EX_rs1_addr = 5'hXX
+ID_EX_rs2_addr = 5'hXX

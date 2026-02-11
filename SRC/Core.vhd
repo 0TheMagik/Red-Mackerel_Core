@@ -2,229 +2,271 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
+-- ! Code Not tested yet
+-- ! Test it first you fool
+
+-- ! Temporaray Variables:
+-- !    sel_mux in Mux_PC set to '0'
+-- !    in_mux1 in Mux_PC set to (others => '0')
+-- !    hazard signal set to '0'
+-- !    rd_write_en in RF set to '0'
+-- !    rd_addr and rd_data in RF set to (others => '0')
+
 entity Core is
     port (
-        clk     : in std_logic;
-        rst     : in std_logic
+        clk             : in std_logic;
+        rst             : in std_logic
     );
 end entity Core;
 
-
 architecture rtl of Core is
     
-    component State_Fetch is
+    component Mux_2to1 is
     port (
-        clk                     : in std_logic;
-        rst                     : in std_logic;
-        stall                   : in std_logic;
-        in_instruction          : in std_logic_vector(31 downto 0);
-        in_instruction_addr     : in std_logic_vector(31 downto 0);
-        out_instruction         : out std_logic_vector(31 downto 0);
-        out_instruction_addr    : out std_logic_vector(31 downto 0)
+        sel_mux         : in std_logic;
+        in_mux0         : in std_logic_vector(31 downto 0);
+        in_mux1         : in std_logic_vector(31 downto 0);
+        out_mux         : out std_logic_vector(31 downto 0)
     );
     end component;
 
-    component Decoder_RV32I is
+    component PC is
     port (
-        clk                 : in std_logic;
-        rst                 : in std_logic;
-        instruction         : in std_logic_vector(31 downto 0);
-        funct_3             : out std_logic_vector(2 downto 0);
-        funct_7             : out std_logic_vector(6 downto 0);
-        rs1                 : out std_logic_vector(4 downto 0);
-        rs2                 : out std_logic_vector(4 downto 0);
-        rd                  : out std_logic_vector(4 downto 0);
-        immediate           : out std_logic_vector(31 downto 0);
-        rd_write_en         : out std_logic;
-        sel_mux_exe         : out std_logic
+        clk              : in std_logic;
+        rst              : in std_logic;
+        address_in       : in std_logic_vector(31 downto 0);
+        address_out      : out std_logic_vector(31 downto 0)
+    );
+    end component;
+
+    component Adder is
+    port (
+        in_0            : in std_logic_vector(31 downto 0);
+        in_1            : in std_logic_vector(31 downto 0);
+        out_sum         : out std_logic_vector(31 downto 0)
+    );
+    end component;
+
+    component Progmem is
+    port (
+        rst             : in std_logic;
+        address_in      : in std_logic_vector(31 downto 0);
+        instr_out       : out std_logic_vector(31 downto 0)
+    );
+    end component;
+
+    component State_IF_ID is
+    port (
+        clk             : in std_logic;
+        rst             : in std_logic;
+        hazard          : in std_logic;
+        -- Input Fetch
+        instr_in        : in std_logic_vector(31 downto 0);
+        instr_addr_in   : in std_logic_vector(31 downto 0);
+
+        -- output Decode
+        instr_out       : out std_logic_vector(31 downto 0);
+        instr_addr_out  : out std_logic_vector(31 downto 0)
+
     );
     end component;
 
     component Register_File is
     port (
-        clk         : in std_logic;
-        rst         : in std_logic;
-        rd_write_en : in std_logic;
-        rs1_addr    : in std_logic_vector(4 downto 0);
-        rs2_addr    : in std_logic_vector(4 downto 0);
-        rd_addr     : in std_logic_vector(4 downto 0);
-        rd_data     : in std_logic_vector(31 downto 0);
-        rs1_data    : out std_logic_vector(31 downto 0);
-        rs2_data    : out std_logic_vector(31 downto 0)
+        clk             : in std_logic;
+        rst             : in std_logic;
+        rd_write_en     : in std_logic;
+        rs1_addr        : in std_logic_vector(4 downto 0);
+        rs2_addr        : in std_logic_vector(4 downto 0);
+        rd_addr         : in std_logic_vector(4 downto 0);
+        rd_data         : in std_logic_vector(31 downto 0);
+        rs1_data        : out std_logic_vector(31 downto 0);
+        rs2_data        : out std_logic_vector(31 downto 0)
     );
     end component;
 
-    component State_Decode is
+    component Decoder_RV32I is
     port (
-        clk                 : in std_logic;
-        rst                 : in std_logic;
-        stall               : in std_logic;
-        in_instruction      : in std_logic_vector(31 downto 0);
-        in_funct_3          : in std_logic_vector(2 downto 0);
-        in_funct_7          : in std_logic_vector(6 downto 0);
-        in_immediate        : in std_logic_vector(31 downto 0);
-        in_rs1_addr         : in std_logic_vector(4 downto 0);
-        in_rs2_addr         : in std_logic_vector(4 downto 0);
-        in_rd_addr          : in std_logic_vector(4 downto 0);
-        in_rs1_data         : in std_logic_vector(31 downto 0);
-        in_rs2_data         : in std_logic_vector(31 downto 0);
-        in_rd_write_en      : in std_logic;
-        in_sel_mux_exe      : in std_logic;
-        out_instruction     : out std_logic_vector(31 downto 0);
-        out_funct_3         : out std_logic_vector(2 downto 0);
-        out_funct_7         : out std_logic_vector(6 downto 0);
-        out_immediate       : out std_logic_vector(31 downto 0);
-        out_rs1_addr        : out std_logic_vector(4 downto 0);
-        out_rs2_addr        : out std_logic_vector(4 downto 0);
-        out_rd_addr         : out std_logic_vector(4 downto 0);
-        out_rs1_data        : out std_logic_vector(31 downto 0);
-        out_rs2_data        : out std_logic_vector(31 downto 0);
-        out_rd_write_en     : out std_logic;
-        out_sel_mux_exe     : out std_logic
+        clk            : in std_logic;
+        rst            : in std_logic;
+        instruction    : in std_logic_vector(31 downto 0);
+        -- funct_3        : out std_logic_vector(2 downto 0);
+        -- funct_7        : out std_logic_vector(6 downto 0);
+        rs1            : out std_logic_vector(4 downto 0);
+        rs2            : out std_logic_vector(4 downto 0);
+        rd             : out std_logic_vector(4 downto 0);
+        immediate      : out std_logic_vector(31 downto 0);
+        rd_write_en    : out std_logic;
+        sel_mux_exe    : out std_logic
     );
     end component;
 
-    -- component Mux_2to1 is
-    -- port (
-    --     sel_mux     : in std_logic;
-    --     in_mux0     : in std_logic_vector(31 downto 0);
-    --     in_mux1     : in std_logic_vector(31 downto 0);
-    --     out_mux     : out std_logic_vector(31 downto 0)
-    -- );
-    -- end component;
-
-    component Hazard_Unit is
+    component State_ID_EX is
     port (
-        in_rs1_addr_EX  : in std_logic_vector(4 downto 0);
-        in_rs2_addr_EX  : in std_logic_vector(4 downto 0);
-        in_rd_addr_EX   : in std_logic_vector(4 downto 0);
-        in_rs1_addr_ID  : in std_logic_vector(4 downto 0);
-        in_rs2_addr_ID  : in std_logic_vector(4 downto 0);
-        in_rd_addr_ID   : in std_logic_vector(4 downto 0);
-        wb              : in std_logic;
-        stall           : out std_logic
+        clk             : in std_logic;
+        rst             : in std_logic;
+        hazard          : in std_logic;
+
+        rs1_data        : in std_logic_vector(31 downto 0);
+        rs2_data        : in std_logic_vector(31 downto 0);
+        rs1_addr        : in std_logic_vector(4 downto 0);
+        rs2_addr        : in std_logic_vector(4 downto 0);
+        rd_addr         : in std_logic_vector(4 downto 0);
+        immediate       : in std_logic_vector(31 downto 0);
+        rd_write_en     : in std_logic;
+        sel_mux_exe     : in std_logic;
+        instr_addr_in   : in std_logic_vector(31 downto 0);
+
+
+        rs1_data_out    : out std_logic_vector(31 downto 0);
+        rs2_data_out    : out std_logic_vector(31 downto 0);
+        rs1_addr_out    : out std_logic_vector(4 downto 0);
+        rs2_addr_out    : out std_logic_vector(4 downto 0);
+        rd_addr_out     : out std_logic_vector(4 downto 0);
+        immediate_out   : out std_logic_vector(31 downto 0);
+        rd_write_en_out : out std_logic;
+        sel_mux_exe_out : out std_logic;
+        instr_addr_out  : out std_logic_vector(31 downto 0)
     );
     end component;
 
+    -- General signals
+    -- signal clk          : std_logic := '0'; -- Value temporary
+    -- signal rst          : std_logic := '0'; -- Value temporary
+    signal hazard       : std_logic := '0'; -- Value temporary
 
-    --signal
-    signal stall            : std_logic;
+    --state IF_ID signals
+    signal IF_ID_instr_out      : std_logic_vector(31 downto 0); -- To ID_EX
+    signal IF_ID_instr_addr_out : std_logic_vector(31 downto 0); -- To ID_EX
+    -- This signals used in PC Module
+    signal pc_mux_out   : std_logic_vector(31 downto 0);
+    signal pc_adder_out : std_logic_vector(31 downto 0);
+    signal pc_out       : std_logic_vector(31 downto 0);
+    signal pc_fetched   : std_logic_vector(31 downto 0);
+
+
+    -- state ID_EX signals
+    signal ID_EX_rs1_data       : std_logic_vector(31 downto 0);
+    signal ID_EX_rs2_data       : std_logic_vector(31 downto 0);
+    signal ID_EX_rs1_addr       : std_logic_vector(4 downto 0);
+    signal ID_EX_rs2_addr       : std_logic_vector(4 downto 0);
+    signal ID_EX_rd_addr        : std_logic_vector(4 downto 0);
+    signal ID_EX_immediate      : std_logic_vector(31 downto 0);
+    signal ID_EX_rd_write_en    : std_logic;
+    signal ID_EX_sel_mux_exe    : std_logic;
+
+    -- To EX_MEM
+    signal ID_EX_rs1_data_out   : std_logic_vector(31 downto 0);
+    signal ID_EX_rs2_data_out   : std_logic_vector(31 downto 0);
+    signal ID_EX_rs1_addr_out   : std_logic_vector(4 downto 0);
+    signal ID_EX_rs2_addr_out   : std_logic_vector(4 downto 0);
+    signal ID_EX_rd_addr_out    : std_logic_vector(4 downto 0);
+    signal ID_EX_immediate_out  : std_logic_vector(31 downto 0);
+    signal ID_EX_rd_write_en_out: std_logic;
+    signal ID_EX_sel_mux_exe_out: std_logic;
+    signal ID_EX_instr_addr_out : std_logic_vector(31 downto 0);
+begin
     
-    -- Instruction Fetch State
-    signal instruction_IF       : std_logic_vector(31 downto 0);
-    signal instruction_addr_IF  : std_logic_vector(31 downto 0);
-
-    -- Instruction Decode State
-    signal instruction_ID       : std_logic_vector(31 downto 0);
-    signal instruction_addr_ID  : std_logic_vector(31 downto 0);
-    signal funct_3_ID           : std_logic_vector(2 downto 0);
-    signal funct_7_ID           : std_logic_vector(6 downto 0);
-    signal rs1_ID               : std_logic_vector(4 downto 0);
-    signal rs2_ID               : std_logic_vector(4 downto 0);
-    signal rd_ID                : std_logic_vector(4 downto 0);
-    signal immediate_ID         : std_logic_vector(31 downto 0);
-    signal rd_write_en_ID       : std_logic;
-    signal sel_mux_exe_ID       : std_logic;
     
-    signal rs1_data_ID          : std_logic_vector(31 downto 0);
-    signal rs2_data_ID          : std_logic_vector(31 downto 0);
-    signal rd_data_ID           : std_logic_vector(31 downto 0);
+    Mux_PC : Mux_2to1
+    port map (
+        sel_mux         => '0', -- Temp
+        in_mux0         => pc_adder_out,
+        in_mux1         => (others => '0'), -- Temp
+        out_mux         => pc_mux_out
+    );
 
-    -- Execute State
-    signal instruction_EX       : std_logic_vector(31 downto 0);
-    signal instruction_addr_EX  : std_logic_vector(31 downto 0);
-    signal funct_3_EX           : std_logic_vector(2 downto 0);
-    signal funct_7_EX           : std_logic_vector(6 downto 0);
-    signal rs1_EX               : std_logic_vector(4 downto 0);
-    signal rs2_EX               : std_logic_vector(4 downto 0);
-    signal rd_EX                : std_logic_vector(4 downto 0);
-    signal immediate_EX         : std_logic_vector(31 downto 0);
-    signal rd_write_en_EX       : std_logic;
-    signal sel_mux_exe_EX       : std_logic;
-    
-    signal rs1_data_EX          : std_logic_vector(31 downto 0);
-    signal rs2_data_EX          : std_logic_vector(31 downto 0);
+    Program_Counter : PC
+    port map (
+        clk             => clk,
+        rst             => rst,
+        address_in      => pc_mux_out,
+        address_out     => pc_out
+    );
 
-    begin
+    Adder_PC : Adder
+    port map (
+        in_0            => x"00000004",
+        in_1            => pc_out,
+        out_sum         => pc_adder_out
+    );
 
-        Fetch: State_Fetch
-        port map(
-            clk                     => clk,
-            rst                     => rst,
-            stall                   => stall,
-            in_instruction          => instruction_IF,
-            in_instruction_addr     => x"00000000",
-            out_instruction         => instruction_ID,
-            out_instruction_addr    => instruction_addr_ID
-        );
+    Program_Memory : Progmem
+    port map (
+        rst             => rst,
+        address_in      => pc_out,
+        instr_out       => pc_fetched
+    );
 
-        Decoder: Decoder_RV32I
-        port map(
-            clk                 => clk,
-            rst                 => rst,
-            instruction         => instruction_ID,
-            funct_3             => funct_3_ID,
-            funct_7             => funct_7_ID,
-            rs1                 => rs1_ID,
-            rs2                 => rs2_ID,
-            rd                  => rd_ID,
-            immediate           => immediate_ID,
-            rd_write_en         => rd_write_en_ID,
-            sel_mux_exe         => sel_mux_exe_ID
-        );
+    State_Fetch_Decode : State_IF_ID
+    port map (
+        clk             => clk,
+        rst             => rst,
+        hazard          => hazard,
+        -- Input Fetch
+        instr_in        => pc_fetched,
+        instr_addr_in   => pc_out,
 
-        RF: Register_File 
-        port map(
-            clk         => clk,
-            rst         => rst,
-            rd_write_en => '0',
-            rs1_addr    => rs1_ID,
-            rs2_addr    => rs2_ID,
-            rd_addr     => "00000",
-            rd_data     => x"00000000",
-            rs1_data    => rs1_data_ID,
-            rs2_data    => rs2_data_ID
-        );
-        
-        Decode: State_Decode 
-        port map(
-            clk                 => clk,
-            rst                 => rst,
-            stall               => stall,
-            in_instruction      => instruction_ID,
-            in_funct_3          => funct_3_ID,
-            in_funct_7          => funct_7_ID,
-            in_immediate        => immediate_ID,
-            in_rs1_addr         => rs1_ID,
-            in_rs2_addr         => rs2_ID,
-            in_rd_addr          => rd_ID,
-            in_rs1_data         => rs1_data_ID,
-            in_rs2_data         => rs2_data_ID,
-            in_rd_write_en      => rd_write_en_ID,
-            in_sel_mux_exe      => sel_mux_exe_ID,
-            out_instruction     => instruction_EX,
-            out_funct_3         => funct_3_EX,
-            out_funct_7         => funct_7_EX,
-            out_immediate       => immediate_EX,
-            out_rs1_addr        => rs1_EX,
-            out_rs2_addr        => rs2_EX,
-            out_rd_addr         => rd_EX,
-            out_rs1_data        => rs1_data_EX,
-            out_rs2_data        => rs2_data_EX,
-            out_rd_write_en     => rd_write_en_EX,
-            out_sel_mux_exe     => sel_mux_exe_EX
-        );
+        -- output Decode
+        instr_out       => IF_ID_instr_out,
+        instr_addr_out  => IF_ID_instr_addr_out     -- Instruction Address to ID_EX
+    );
 
-        -- Hazard_Detection: Hazard_Unit
-        -- port map(
-        --     in_rs1_addr_EX      => rs1_EX,
-        --     in_rs2_addr_EX      => rs2_EX,
-        --     in_rd_addr_EX       => rd_EX,
-        --     in_rs1_addr_ID      => rs1_ID,
-        --     in_rs2_addr_ID      => rs2_ID,
-        --     in_rd_addr_ID       => rd_ID,
-        --     wb                  => '0',
-        --     stall               => stall
-        -- );
+    RF:  Register_File
+    port map (
+        clk             => clk,
+        rst             => rst,
+        rd_write_en     => '0', -- Temp
+        rs1_addr        => ID_EX_rs1_addr,
+        rs2_addr        => ID_EX_rs2_addr,
+        rd_addr         => (others => '0'), -- Temp
+        rd_data         => (others => '0'), -- Temp
+        rs1_data        => ID_EX_rs1_data,
+        rs2_data        => ID_EX_rs2_data
+    );
+
+    Decoder: Decoder_RV32I
+    port map (
+        clk            => clk,
+        rst            => rst, 
+        instruction    => IF_ID_instr_out,
+        -- funct_3        : out std_logic_vector(2 downto 0);
+        -- funct_7        : out std_logic_vector(6 downto 0);
+        rs1            => ID_EX_rs1_addr,
+        rs2            => ID_EX_rs2_addr,
+        rd             => ID_EX_rd_addr,
+        immediate      => ID_EX_immediate,
+        rd_write_en    => ID_EX_rd_write_en,
+        sel_mux_exe    => ID_EX_sel_mux_exe
+    );
+
+    State_Decode_Execute: State_ID_EX
+    port map (
+        clk             => clk,
+        rst             => rst,
+        hazard          => hazard,
+
+        rs1_data        => ID_EX_rs1_data,
+        rs2_data        => ID_EX_rs2_data,
+        rs1_addr        => ID_EX_rs1_addr,
+        rs2_addr        => ID_EX_rs2_addr,
+        rd_addr         => ID_EX_rd_addr,
+        immediate       => ID_EX_immediate,
+        rd_write_en     => ID_EX_rd_write_en,
+        sel_mux_exe     => ID_EX_sel_mux_exe,
+        instr_addr_in   => IF_ID_instr_addr_out,    -- Instruction addres from IF_ID
+
+
+        rs1_data_out    => ID_EX_rs1_data_out,
+        rs2_data_out    => ID_EX_rs2_data_out,
+        rs1_addr_out    => ID_EX_rs1_addr_out,
+        rs2_addr_out    => ID_EX_rs2_addr_out,
+        rd_addr_out     => ID_EX_rd_addr_out,
+        immediate_out   => ID_EX_immediate_out,
+        rd_write_en_out => ID_EX_rd_write_en_out,
+        sel_mux_exe_out => ID_EX_sel_mux_exe_out,
+        instr_addr_out  => ID_EX_instr_addr_out     -- Instruction Address to EX_MEM
+    );
+
 
 end architecture rtl;
