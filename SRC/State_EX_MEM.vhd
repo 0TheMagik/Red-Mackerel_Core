@@ -8,7 +8,8 @@ entity State_EX_MEM is
         rst             : in std_logic;
         hazard          : in std_logic;
 
-        
+        jump_flag       : in std_logic;
+        alu_
     );
 end entity State_EX_MEM;
 
