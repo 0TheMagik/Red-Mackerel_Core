@@ -4,6 +4,10 @@ use IEEE.numeric_std.all;
 
 entity State_EX_MEM is
     port (
+        clk             : in std_logic;
+        rst             : in std_logic;
+        hazard          : in std_logic;
+
         
     );
 end entity State_EX_MEM;
