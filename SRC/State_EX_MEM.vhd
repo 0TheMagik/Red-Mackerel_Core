@@ -9,7 +9,12 @@ entity State_EX_MEM is
         hazard          : in std_logic;
 
         jump_flag       : in std_logic;
-        alu_
+        alu_branch_resp : in std_logic;
+        alu_result      : in std_logic_vector(31 downto 0);
+        fw_mux_2        : in std_logic_vector(31 downto 0);
+
+        instr_addr_in   : in std_logic_vector(31 downto 0);
+
     );
 end entity State_EX_MEM;
 
