@@ -7,7 +7,6 @@ use IEEE.numeric_std.all;
 
 -- ! Temporaray Variables:
 -- !    sel_mux in Mux_PC set to '0'
--- !    in_mux1 in Mux_PC set to (others => '0')
 -- !    hazard signal set to '0'
 -- !    rd_write_en in RF set to '0'
 -- !    rd_addr and rd_data in RF set to (others => '0')
@@ -87,46 +86,63 @@ architecture rtl of Core is
 
     component Decoder_RV32I is
     port (
-        clk            : in std_logic;
-        rst            : in std_logic;
-        instruction    : in std_logic_vector(31 downto 0);
-        -- funct_3        : out std_logic_vector(2 downto 0);
-        -- funct_7        : out std_logic_vector(6 downto 0);
-        rs1            : out std_logic_vector(4 downto 0);
-        rs2            : out std_logic_vector(4 downto 0);
-        rd             : out std_logic_vector(4 downto 0);
-        immediate      : out std_logic_vector(31 downto 0);
-        rd_write_en    : out std_logic;
-        sel_mux_exe    : out std_logic
+        clk                 : in std_logic;
+        rst                 : in std_logic;
+        instruction         : in std_logic_vector(31 downto 0);
+        funct_3             : out std_logic_vector(2 downto 0);
+        funct_7             : out std_logic_vector(6 downto 0);
+        rs1                 : out std_logic_vector(4 downto 0);
+        rs2                 : out std_logic_vector(4 downto 0);
+        rd                  : out std_logic_vector(4 downto 0);
+        immediate           : out std_logic_vector(31 downto 0);
+        rd_write_en         : out std_logic;
+        sel_mux_exe         : out std_logic;
+        jump_branch_mux_sel : out std_logic
     );
     end component;
 
     component State_ID_EX is
     port (
-        clk             : in std_logic;
-        rst             : in std_logic;
-        hazard          : in std_logic;
+        clk                     : in std_logic;
+        rst                     : in std_logic;
+        hazard                  : in std_logic;
 
+        funct_3_in              : in std_logic_vector(2 downto 0);
+        funct_7_in              : in std_logic_vector(6 downto 0);
+        rs1_data_in             : in std_logic_vector(31 downto 0);
+        rs2_data_in             : in std_logic_vector(31 downto 0);
+        rs1_addr_in             : in std_logic_vector(4 downto 0);
+        rs2_addr_in             : in std_logic_vector(4 downto 0);
+        rd_addr_in              : in std_logic_vector(4 downto 0);
+        immediate_in            : in std_logic_vector(31 downto 0);
+        rd_write_en_in          : in std_logic;
+        sel_mux_exe_in          : in std_logic;
+        jump_branch_mux_sel_in  : in std_logic;
+        instr_addr_in           : in std_logic_vector(31 downto 0);
+
+
+        funct_3_out             : out std_logic_vector(2 downto 0);
+        funct_7_out             : out std_logic_vector(6 downto 0);
+        rs1_data_out            : out std_logic_vector(31 downto 0);
+        rs2_data_out            : out std_logic_vector(31 downto 0);
+        rs1_addr_out            : out std_logic_vector(4 downto 0);
+        rs2_addr_out            : out std_logic_vector(4 downto 0);
+        rd_addr_out             : out std_logic_vector(4 downto 0);
+        immediate_out           : out std_logic_vector(31 downto 0);
+        rd_write_en_out         : out std_logic;
+        sel_mux_exe_out         : out std_logic;
+        jump_branch_mux_sel_out : out std_logic;
+        instr_addr_out          : out std_logic_vector(31 downto 0)
+    );
+    end component;
+
+    component Jump_Unit is
+    port (
+        jump_mux_sel    : in std_logic;
         rs1_data        : in std_logic_vector(31 downto 0);
-        rs2_data        : in std_logic_vector(31 downto 0);
-        rs1_addr        : in std_logic_vector(4 downto 0);
-        rs2_addr        : in std_logic_vector(4 downto 0);
-        rd_addr         : in std_logic_vector(4 downto 0);
+        instr_addr      : in std_logic_vector(31 downto 0);
         immediate       : in std_logic_vector(31 downto 0);
-        rd_write_en     : in std_logic;
-        sel_mux_exe     : in std_logic;
-        instr_addr_in   : in std_logic_vector(31 downto 0);
-
-
-        rs1_data_out    : out std_logic_vector(31 downto 0);
-        rs2_data_out    : out std_logic_vector(31 downto 0);
-        rs1_addr_out    : out std_logic_vector(4 downto 0);
-        rs2_addr_out    : out std_logic_vector(4 downto 0);
-        rd_addr_out     : out std_logic_vector(4 downto 0);
-        immediate_out   : out std_logic_vector(31 downto 0);
-        rd_write_en_out : out std_logic;
-        sel_mux_exe_out : out std_logic;
-        instr_addr_out  : out std_logic_vector(31 downto 0)
+        jump_branch_dst : out std_logic_vector(31 downto 0)
     );
     end component;
 
@@ -146,16 +162,24 @@ architecture rtl of Core is
 
 
     -- state ID_EX signals
-    signal ID_EX_rs1_data       : std_logic_vector(31 downto 0);
-    signal ID_EX_rs2_data       : std_logic_vector(31 downto 0);
-    signal ID_EX_rs1_addr       : std_logic_vector(4 downto 0);
-    signal ID_EX_rs2_addr       : std_logic_vector(4 downto 0);
-    signal ID_EX_rd_addr        : std_logic_vector(4 downto 0);
-    signal ID_EX_immediate      : std_logic_vector(31 downto 0);
-    signal ID_EX_rd_write_en    : std_logic;
-    signal ID_EX_sel_mux_exe    : std_logic;
+    signal ID_EX_funct_3                : std_logic_vector(2 downto 0);
+    signal ID_EX_funct_7                : std_logic_vector(6 downto 0);
+    signal ID_EX_rs1_data               : std_logic_vector(31 downto 0);
+    signal ID_EX_rs2_data               : std_logic_vector(31 downto 0);
+    signal ID_EX_rs1_addr               : std_logic_vector(4 downto 0);
+    signal ID_EX_rs2_addr               : std_logic_vector(4 downto 0);
+    signal ID_EX_rd_addr                : std_logic_vector(4 downto 0);
+    signal ID_EX_immediate              : std_logic_vector(31 downto 0);
+    signal ID_EX_rd_write_en            : std_logic;
+    signal ID_EX_sel_mux_exe            : std_logic;
+    signal ID_EX_jump_branch_mux_sel    : std_logic;
+    signal ID_EX_instr_addr             : std_logic_vector(31 downto 0);
 
+    -- stay in EX/MEM
+    signal JU_mux_sel           : std_logic;
     -- To EX_MEM
+    signal ID_EX_funct_3_out    : std_logic_vector(2 downto 0);
+    signal ID_EX_funct_7_out    : std_logic_vector(6 downto 0);
     signal ID_EX_rs1_data_out   : std_logic_vector(31 downto 0);
     signal ID_EX_rs2_data_out   : std_logic_vector(31 downto 0);
     signal ID_EX_rs1_addr_out   : std_logic_vector(4 downto 0);
@@ -165,6 +189,11 @@ architecture rtl of Core is
     signal ID_EX_rd_write_en_out: std_logic;
     signal ID_EX_sel_mux_exe_out: std_logic;
     signal ID_EX_instr_addr_out : std_logic_vector(31 downto 0);
+
+
+    -- state EX_MEM signals
+    -- Returning signal, from Jump Unit to Mux_PC
+    signal jump_branch_dst      : std_logic_vector(31 downto 0);
 begin
     
     
@@ -172,7 +201,7 @@ begin
     port map (
         sel_mux         => '0', -- Temp
         in_mux0         => pc_adder_out,
-        in_mux1         => (others => '0'), -- Temp
+        in_mux1         => jump_branch_dst,
         out_mux         => pc_mux_out
     );
 
@@ -227,45 +256,61 @@ begin
 
     Decoder: Decoder_RV32I
     port map (
-        clk            => clk,
-        rst            => rst, 
-        instruction    => IF_ID_instr_out,
-        -- funct_3        : out std_logic_vector(2 downto 0);
-        -- funct_7        : out std_logic_vector(6 downto 0);
-        rs1            => ID_EX_rs1_addr,
-        rs2            => ID_EX_rs2_addr,
-        rd             => ID_EX_rd_addr,
-        immediate      => ID_EX_immediate,
-        rd_write_en    => ID_EX_rd_write_en,
-        sel_mux_exe    => ID_EX_sel_mux_exe
+        clk                 => clk,
+        rst                 => rst, 
+        instruction         => IF_ID_instr_out,
+        funct_3             => ID_EX_funct_3,
+        funct_7             => ID_EX_funct_7,
+        rs1                 => ID_EX_rs1_addr,
+        rs2                 => ID_EX_rs2_addr,
+        rd                  => ID_EX_rd_addr,
+        immediate           => ID_EX_immediate,
+        rd_write_en         => ID_EX_rd_write_en,
+        sel_mux_exe         => ID_EX_sel_mux_exe
+        jump_branch_mux_sel => ID_EX_jump_branch_mux_sel
     );
 
     State_Decode_Execute: State_ID_EX
     port map (
-        clk             => clk,
-        rst             => rst,
-        hazard          => hazard,
+        clk                     => clk,
+        rst                     => rst,
+        hazard                  => hazard,
 
-        rs1_data        => ID_EX_rs1_data,
-        rs2_data        => ID_EX_rs2_data,
-        rs1_addr        => ID_EX_rs1_addr,
-        rs2_addr        => ID_EX_rs2_addr,
-        rd_addr         => ID_EX_rd_addr,
-        immediate       => ID_EX_immediate,
-        rd_write_en     => ID_EX_rd_write_en,
-        sel_mux_exe     => ID_EX_sel_mux_exe,
-        instr_addr_in   => IF_ID_instr_addr_out,    -- Instruction addres from IF_ID
+        funct_3_in              => ID_EX_funct_3,
+        funct_7_in              => ID_EX_funct_7,
+        rs1_data_in             => ID_EX_rs1_data,
+        rs2_data_in             => ID_EX_rs2_data,
+        rs1_addr_in             => ID_EX_rs1_addr,
+        rs2_addr_in             => ID_EX_rs2_addr,
+        rd_addr_in              => ID_EX_rd_addr,
+        immediate_in            => ID_EX_immediate,
+        rd_write_en_in          => ID_EX_rd_write_en,
+        sel_mux_exe_in          => ID_EX_sel_mux_exe,
+        jump_branch_mux_sel_in  => ID_EX_jump_branch_mux_sel,
+        instr_addr_in           => IF_ID_instr_addr_out,    -- Instruction addres from IF_ID
+
+        funct_3_out             => ID_EX_funct_3_out,
+        funct_7_out             => ID_EX_funct_7_out,
+        rs1_data_out            => ID_EX_rs1_data_out,
+        rs2_data_out            => ID_EX_rs2_data_out,
+        rs1_addr_out            => ID_EX_rs1_addr_out,
+        rs2_addr_out            => ID_EX_rs2_addr_out,
+        rd_addr_out             => ID_EX_rd_addr_out,
+        immediate_out           => ID_EX_immediate_out,
+        rd_write_en_out         => ID_EX_rd_write_en_out,
+        sel_mux_exe_out         => ID_EX_sel_mux_exe_out,
+        jump_branch_mux_sel_out => JU_mux_sel,              -- Goes into Jump Unit
+        instr_addr_out          => ID_EX_instr_addr_out     -- Instruction Address to EX_MEM
+    );
 
 
-        rs1_data_out    => ID_EX_rs1_data_out,
-        rs2_data_out    => ID_EX_rs2_data_out,
-        rs1_addr_out    => ID_EX_rs1_addr_out,
-        rs2_addr_out    => ID_EX_rs2_addr_out,
-        rd_addr_out     => ID_EX_rd_addr_out,
-        immediate_out   => ID_EX_immediate_out,
-        rd_write_en_out => ID_EX_rd_write_en_out,
-        sel_mux_exe_out => ID_EX_sel_mux_exe_out,
-        instr_addr_out  => ID_EX_instr_addr_out     -- Instruction Address to EX_MEM
+    Jump_Branch_Unit: Jump_Unit
+    port (
+        jump_mux_sel    => JU_mux_sel,
+        rs1_data        => ID_EX_rs1_data_out,
+        instr_addr      => ID_EX_instr_addr_out,
+        immediate       => ID_EX_immediate_out,
+        jump_branch_dst => jump_branch_dst -- * Return to Mux_PC
     );
 
 
