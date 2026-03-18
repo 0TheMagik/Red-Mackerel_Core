@@ -14,7 +14,29 @@ use IEEE.numeric_std.all;
 entity Core is
     port (
         clk             : in std_logic;
-        rst             : in std_logic
+        rst             : in std_logic;
+
+        -- * Debugging Outputs
+        -- Debug IF/ID port
+        Debug_IF_ID_instr_out       : out std_logic_vector(31 downto 0);
+        Debug_IF_ID_instr_addr_out  : out std_logic_vector(31 downto 0);
+        
+        -- Debug ID/EX port
+        Debug_ID_EX_funct_3_out             : out std_logic_vector(2 downto 0);
+        Debug_ID_EX_funct_7_out             : out std_logic_vector(6 downto 0);
+        Debug_ID_EX_rs1_data_out            : out std_logic_vector(31 downto 0);
+        Debug_ID_EX_rs2_data_out            : out std_logic_vector(31 downto 0);
+        Debug_ID_EX_rs1_addr_out            : out std_logic_vector(4 downto 0);
+        Debug_ID_EX_rs2_addr_out            : out std_logic_vector(4 downto 0);
+        Debug_ID_EX_rd_addr_out             : out std_logic_vector(4 downto 0);
+        Debug_ID_EX_immediate_out           : out std_logic_vector(31 downto 0);
+        Debug_ID_EX_rd_write_en_out         : out std_logic;
+        Debug_ID_EX_sel_mux_exe_out         : out std_logic;
+        -- This signal stay in EX
+        Debug_ID_EX_JU_mux_sel              : out std_logic;
+        Debug_ID_EX_instr_addr_out          : out std_logic_vector(31 downto 0);
+        
+
     );
 end entity Core;
 
@@ -146,54 +168,88 @@ architecture rtl of Core is
     );
     end component;
 
+    component Mux_5to1 is
+    port (
+        sel_mux     : in std_logic_vector(2 downto 0);
+        in_mux0     : in std_logic_vector(31 downto 0);
+        in_mux1     : in std_logic_vector(31 downto 0);
+        in_mux2     : in std_logic_vector(31 downto 0);
+        in_mux3     : in std_logic_vector(31 downto 0);
+        in_mux4     : in std_logic_vector(31 downto 0);
+        out_mux     : out std_logic_vector(31 downto 0)
+    );
+    end component;
+
+    component Forwarding_Unit is
+    port (
+        -- Input From ID_EX
+        rs1_addr            : in std_logic_vector(4 downto 0);
+        rs2_addr            : in std_logic_vector(4 downto 0);
+        -- Input From EX_MEM
+        EX_MEM_rd_addr      : in std_logic_vector(4 downto 0);
+        EX_MEM_rd_write_en  : in std_logic;
+        EX_MEM_sel_mux_wb   : in std_logic_vector(1 downto 0);
+
+        -- Input From MEM_WB
+        MEM_WB_rd_addr      : in std_logic_vector(4 downto 0);
+        MEM_WB_rd_write_en  : in std_logic;
+        MEM_WB_sel_mux_wb   : in std_logic_vector(1 downto 0);
+
+        -- Output To Forwarding Muxes
+        sel_mux_fwd1        : out std_logic_vector(2 downto 0);
+        sel_mux_fwd2        : out std_logic_vector(2 downto 0)
+    );
+    end component;
+
     -- General signals
     -- signal clk          : std_logic := '0'; -- Value temporary
     -- signal rst          : std_logic := '0'; -- Value temporary
     signal hazard       : std_logic := '0'; -- Value temporary
 
     --state IF_ID signals
-    signal IF_ID_instr_out      : std_logic_vector(31 downto 0); -- To ID_EX
-    signal IF_ID_instr_addr_out : std_logic_vector(31 downto 0); -- To ID_EX
+    signal IF_ID_instr_out      : std_logic_vector(31 downto 0) := (others => '0'); -- To ID_EX
+    signal IF_ID_instr_addr_out : std_logic_vector(31 downto 0) := (others => '0'); -- To ID_EX
     -- This signals used in PC Module
-    signal pc_mux_out   : std_logic_vector(31 downto 0);
-    signal pc_adder_out : std_logic_vector(31 downto 0);
-    signal pc_out       : std_logic_vector(31 downto 0);
-    signal pc_fetched   : std_logic_vector(31 downto 0);
+    signal pc_mux_out   : std_logic_vector(31 downto 0) := (others => '0');
+    signal pc_adder_out : std_logic_vector(31 downto 0) := (others => '0');
+    signal pc_out       : std_logic_vector(31 downto 0) := (others => '0');
+    signal pc_fetched   : std_logic_vector(31 downto 0) := (others => '0');
 
 
     -- state ID_EX signals
-    signal ID_EX_funct_3                : std_logic_vector(2 downto 0);
-    signal ID_EX_funct_7                : std_logic_vector(6 downto 0);
-    signal ID_EX_rs1_data               : std_logic_vector(31 downto 0);
-    signal ID_EX_rs2_data               : std_logic_vector(31 downto 0);
-    signal ID_EX_rs1_addr               : std_logic_vector(4 downto 0);
-    signal ID_EX_rs2_addr               : std_logic_vector(4 downto 0);
-    signal ID_EX_rd_addr                : std_logic_vector(4 downto 0);
-    signal ID_EX_immediate              : std_logic_vector(31 downto 0);
-    signal ID_EX_rd_write_en            : std_logic;
-    signal ID_EX_sel_mux_exe            : std_logic;
-    signal ID_EX_jump_branch_mux_sel    : std_logic;
-    signal ID_EX_instr_addr             : std_logic_vector(31 downto 0);
+    signal ID_EX_funct_3                : std_logic_vector(2 downto 0) := (others => '0');
+    signal ID_EX_funct_7                : std_logic_vector(6 downto 0) := (others => '0');
+    signal ID_EX_rs1_data               : std_logic_vector(31 downto 0) := (others => '0');
+    signal ID_EX_rs2_data               : std_logic_vector(31 downto 0) := (others => '0');
+    signal ID_EX_rs1_addr               : std_logic_vector(4 downto 0) := (others => '0');
+    signal ID_EX_rs2_addr               : std_logic_vector(4 downto 0) := (others => '0');
+    signal ID_EX_rd_addr                : std_logic_vector(4 downto 0) := (others => '0');
+    signal ID_EX_immediate              : std_logic_vector(31 downto 0) := (others => '0');
+    signal ID_EX_rd_write_en            : std_logic := '0';
+    signal ID_EX_sel_mux_exe            : std_logic := '0';
+    signal ID_EX_jump_branch_mux_sel    : std_logic := '0';
+    signal ID_EX_instr_addr             : std_logic_vector(31 downto 0) := (others => '0');
 
     -- stay in EX/MEM
     signal JU_mux_sel           : std_logic;
     -- To EX_MEM
-    signal ID_EX_funct_3_out    : std_logic_vector(2 downto 0);
-    signal ID_EX_funct_7_out    : std_logic_vector(6 downto 0);
-    signal ID_EX_rs1_data_out   : std_logic_vector(31 downto 0);
-    signal ID_EX_rs2_data_out   : std_logic_vector(31 downto 0);
-    signal ID_EX_rs1_addr_out   : std_logic_vector(4 downto 0);
-    signal ID_EX_rs2_addr_out   : std_logic_vector(4 downto 0);
-    signal ID_EX_rd_addr_out    : std_logic_vector(4 downto 0);
-    signal ID_EX_immediate_out  : std_logic_vector(31 downto 0);
-    signal ID_EX_rd_write_en_out: std_logic;
-    signal ID_EX_sel_mux_exe_out: std_logic;
-    signal ID_EX_instr_addr_out : std_logic_vector(31 downto 0);
+    signal ID_EX_funct_3_out    : std_logic_vector(2 downto 0) := (others => '0');
+    signal ID_EX_funct_7_out    : std_logic_vector(6 downto 0) := (others => '0');
+    signal ID_EX_rs1_data_out   : std_logic_vector(31 downto 0) := (others => '0');
+    signal ID_EX_rs2_data_out   : std_logic_vector(31 downto 0) := (others => '0');
+    signal ID_EX_rs1_addr_out   : std_logic_vector(4 downto 0) := (others => '0');
+    signal ID_EX_rs2_addr_out   : std_logic_vector(4 downto 0) := (others => '0');
+    signal ID_EX_rd_addr_out    : std_logic_vector(4 downto 0) := (others => '0');
+    signal ID_EX_immediate_out  : std_logic_vector(31 downto 0) := (others => '0');
+    signal ID_EX_rd_write_en_out: std_logic := '0';
+    signal ID_EX_sel_mux_exe_out: std_logic := '0';
+    signal ID_EX_instr_addr_out : std_logic_vector(31 downto 0) := (others => '0');
 
 
     -- state EX_MEM signals
+    signal 
     -- Returning signal, from Jump Unit to Mux_PC
-    signal jump_branch_dst      : std_logic_vector(31 downto 0);
+    signal jump_branch_dst      : std_logic_vector(31 downto 0) := (others => '0');
 begin
     
     
@@ -305,13 +361,60 @@ begin
 
 
     Jump_Branch_Unit: Jump_Unit
-    port (
+    port map (
         jump_mux_sel    => JU_mux_sel,
         rs1_data        => ID_EX_rs1_data_out,
         instr_addr      => ID_EX_instr_addr_out,
         immediate       => ID_EX_immediate_out,
         jump_branch_dst => jump_branch_dst -- * Return to Mux_PC
     );
+
+    forwarding_unit: Forwarding_Unit
+    port map (
+        -- Input From ID_EX
+        rs1_addr            => ID_EX_rs1_addr,
+        rs2_addr            => ID_EX_rs2_addr,
+        -- Input From EX_MEM
+        EX_MEM_rd_addr      : in std_logic_vector(4 downto 0);
+        EX_MEM_rd_write_en  : in std_logic;
+        EX_MEM_sel_mux_wb   : in std_logic_vector(1 downto 0);
+
+        -- Input From MEM_WB
+        MEM_WB_rd_addr      : in std_logic_vector(4 downto 0);
+        MEM_WB_rd_write_en  : in std_logic;
+        MEM_WB_sel_mux_wb   : in std_logic_vector(1 downto 0);
+
+        -- Output To Forwarding Muxes
+        sel_mux_fwd1        : out std_logic_vector(2 downto 0);
+        sel_mux_fwd2        : out std_logic_vector(2 downto 0)
+    );
+    
+
+    fw1 : Mux_5to1
+    port map (
+        sel_mux     => : in std_logic_vector(2 downto 0);
+        in_mux0     => ID_EX_rs1_data_out,
+        in_mux1     : in std_logic_vector(31 downto 0);
+        in_mux2     : in std_logic_vector(31 downto 0);
+        in_mux3     : in std_logic_vector(31 downto 0);
+        in_mux4     : in std_logic_vector(31 downto 0);
+        out_mux     : out std_logic_vector(31 downto 0)
+    );
+
+    fw2 : Mux_5to1
+    port map (
+        sel_mux     => : in std_logic_vector(2 downto 0);
+        in_mux0     => ID_EX_rs2_data_out,
+        in_mux1     : in std_logic_vector(31 downto 0);
+        in_mux2     : in std_logic_vector(31 downto 0);
+        in_mux3     : in std_logic_vector(31 downto 0);
+        in_mux4     : in std_logic_vector(31 downto 0);
+        out_mux     : out std_logic_vector(31 downto 0)
+    );
+
+    
+
+
 
 
 end architecture rtl;

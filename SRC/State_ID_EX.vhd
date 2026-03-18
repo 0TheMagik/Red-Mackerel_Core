@@ -39,19 +39,19 @@ end entity State_ID_EX;
 
 architecture rtl of State_ID_EX is
     
-    signal funct_3_reg              : std_logic_vector(2 downto 0);
-    signal funct_7_reg              : std_logic_vector(6 downto 0);
-    signal rs1_data_reg             : std_logic_vector(31 downto 0);
-    signal rs2_data_reg             : std_logic_vector(31 downto 0);
-    signal rs1_addr_reg             : std_logic_vector(4 downto 0);
-    signal rs2_addr_reg             : std_logic_vector(4 downto 0);
-    signal rd_addr_reg              : std_logic_vector(4 downto 0);
-    signal immediate_reg            : std_logic_vector(31 downto 0);
-    signal rd_write_en_reg          : std_logic;
-    signal sel_mux_exe_reg          : std_logic;
-    signal jump_branch_mux_sel_reg  : std_logic;
-    signal instr_addr_reg           : std_logic_vector(31 downto 0);
-    
+    signal funct_3_reg              : std_logic_vector(2 downto 0) := (others => '0');
+    signal funct_7_reg              : std_logic_vector(6 downto 0) := (others => '0');
+    signal rs1_data_reg             : std_logic_vector(31 downto 0) := (others => '0');
+    signal rs2_data_reg             : std_logic_vector(31 downto 0) := (others => '0');
+    signal rs1_addr_reg             : std_logic_vector(4 downto 0) := (others => '0');
+    signal rs2_addr_reg             : std_logic_vector(4 downto 0) := (others => '0');
+    signal rd_addr_reg              : std_logic_vector(4 downto 0) := (others => '0');
+    signal immediate_reg            : std_logic_vector(31 downto 0) := (others => '0');
+    signal rd_write_en_reg          : std_logic := '0';
+    signal sel_mux_exe_reg          : std_logic := '0';
+    signal jump_branch_mux_sel_reg  : std_logic := '0';
+    signal instr_addr_reg           : std_logic_vector(31 downto 0) := (others => '0');
+
 begin
     ID_EX: process(clk, rst)
     begin
