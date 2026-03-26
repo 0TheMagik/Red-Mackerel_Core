@@ -15,7 +15,8 @@ entity Decoder_RV32I is
         immediate           : out std_logic_vector(31 downto 0);
         rd_write_en         : out std_logic;
         sel_mux_exe         : out std_logic;
-        jump_branch_mux_sel : out std_logic
+        jump_branch_mux_sel : out std_logic;
+        sel_mux_wb          : out std_logic_vector(1 downto 0)
     );
 end entity Decoder_RV32I;
 
@@ -36,6 +37,7 @@ architecture rtl of Decoder_RV32I is
     signal internal_rd_write_en         : std_logic := '0';
     signal internal_sel_mux_exe         : std_logic := '0';
     signal internal_jump_branch_mux_sel : std_logic := '0';
+    signal internal_sel_mux_wb          : std_logic_vector(1 downto 0) := "00";
 
 begin
     
@@ -50,6 +52,8 @@ begin
             internal_immediate      <= x"00000000";
             internal_rd_write_en    <= '0';
             internal_sel_mux_exe    <= '0';
+            internal_jump_branch_mux_sel <= '0';
+            internal_sel_mux_wb     <= "00";
 
         else
             case instruction (6 downto 0) is
@@ -63,6 +67,7 @@ begin
                     internal_rd_write_en        <= '1';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
                 when "0010111" => -- AUIPC
                     internal_funct_3            <= "000";
@@ -70,10 +75,11 @@ begin
                     internal_rs1                <= "00000";
                     internal_rs2                <= "00000";
                     internal_rd                 <= instruction(11 downto 7);
-                    internal_immediate          <= instruction(31 downto 12) & x"000";
+                    internal_immediate          <= instruction(31 downto 12) & x"000000";
                     internal_rd_write_en        <= '1';
-                    internal_sel_mux_exe        <= '1';
+                    internal_sel_mux_exe        <= '0';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
                 when "1101111" => -- JAL
                     internal_funct_3            <= "000";
@@ -85,6 +91,7 @@ begin
                     internal_rd_write_en        <= '1';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
 
                 when "1100111" => -- JALR
@@ -97,6 +104,7 @@ begin
                     internal_rd_write_en        <= '1';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '1';
+                    internal_sel_mux_wb         <= "10";
 
                 when "1100011" => -- BRANCH
                     internal_funct_3            <= instruction(14 downto 12);
@@ -108,6 +116,7 @@ begin
                     internal_rd_write_en        <= '0';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
                 when "0000011" => -- LOAD
                     internal_funct_3            <= instruction(14 downto 12);
@@ -119,7 +128,7 @@ begin
                     internal_rd_write_en        <= '1';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '0';
-
+                    internal_sel_mux_wb         <= "01";
 
                 when "0100011" => -- STORE
                     internal_funct_3            <= instruction(14 downto 12);
@@ -131,6 +140,7 @@ begin
                     internal_rd_write_en        <= '0';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
                 when "0010011" => -- OP-IMM
                     internal_funct_3            <= instruction(14 downto 12);
@@ -142,6 +152,7 @@ begin
                     internal_rd_write_en        <= '1';
                     internal_sel_mux_exe        <= '1';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
                 when "0110011" => -- OP
                     internal_funct_3            <= instruction(14 downto 12);
@@ -153,6 +164,7 @@ begin
                     internal_rd_write_en        <= '1';
                     internal_sel_mux_exe        <= '0';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
                 when others =>
                     internal_funct_3            <= "000";
@@ -164,6 +176,7 @@ begin
                     internal_rd_write_en        <= '0';
                     internal_sel_mux_exe        <= '0';
                     internal_jump_branch_mux_sel<= '0';
+                    internal_sel_mux_wb         <= "00";
 
             end case;
         end if;
@@ -177,5 +190,7 @@ begin
     immediate           <= internal_immediate;
     rd_write_en         <= internal_rd_write_en;
     sel_mux_exe         <= internal_sel_mux_exe;
+    jump_branch_mux_sel <= internal_jump_branch_mux_sel;
+    sel_mux_wb          <= internal_sel_mux_wb;
 
 end architecture rtl;

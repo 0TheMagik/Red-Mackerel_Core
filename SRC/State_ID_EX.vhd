@@ -19,6 +19,7 @@ entity State_ID_EX is
         rd_write_en_in          : in std_logic;
         sel_mux_exe_in          : in std_logic;
         jump_branch_mux_sel_in  : in std_logic;
+        sel_mux_wb_in           : in std_logic_vector(1 downto 0);
         instr_addr_in           : in std_logic_vector(31 downto 0);
 
 
@@ -33,6 +34,7 @@ entity State_ID_EX is
         rd_write_en_out         : out std_logic;
         sel_mux_exe_out         : out std_logic;
         jump_branch_mux_sel_out : out std_logic;
+        sel_mux_wb_out          : out std_logic_vector(1 downto 0);
         instr_addr_out          : out std_logic_vector(31 downto 0)
     );
 end entity State_ID_EX;
@@ -50,6 +52,7 @@ architecture rtl of State_ID_EX is
     signal rd_write_en_reg          : std_logic := '0';
     signal sel_mux_exe_reg          : std_logic := '0';
     signal jump_branch_mux_sel_reg  : std_logic := '0';
+    signal sel_mux_wb_reg           : std_logic_vector(1 downto 0) := (others => '0');
     signal instr_addr_reg           : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
@@ -67,6 +70,7 @@ begin
             sel_mux_exe_reg         <= '0';
             rd_write_en_reg         <= '0';
             jump_branch_mux_sel_reg <= '0';
+            sel_mux_wb_reg          <= (others => '0');
             instr_addr_reg          <= (others => '0');
 
         elsif rising_edge(clk) then
@@ -83,6 +87,7 @@ begin
                 sel_mux_exe_reg         <= sel_mux_exe_in;
                 rd_write_en_reg         <= rd_write_en_in;
                 jump_branch_mux_sel_reg <= jump_branch_mux_sel_in;
+                sel_mux_wb_reg          <= sel_mux_wb_in;
                 instr_addr_reg          <= instr_addr_in;
 
             else -- hold values
@@ -97,6 +102,7 @@ begin
                 sel_mux_exe_reg         <= sel_mux_exe_reg;
                 rd_write_en_reg         <= rd_write_en_reg;
                 jump_branch_mux_sel_reg <= jump_branch_mux_sel_reg;
+                sel_mux_wb_reg          <= sel_mux_wb_reg;
                 instr_addr_reg          <= instr_addr_reg;
 
             end if;
@@ -113,6 +119,7 @@ begin
             sel_mux_exe_reg         <= sel_mux_exe_reg;
             rd_write_en_reg         <= rd_write_en_reg;
             jump_branch_mux_sel_reg <= jump_branch_mux_sel_reg;
+            sel_mux_wb_reg          <= sel_mux_wb_reg;
             instr_addr_reg          <= instr_addr_reg;
         end if;
     end process ID_EX;
@@ -128,5 +135,6 @@ begin
     sel_mux_exe_out         <= sel_mux_exe_reg;
     rd_write_en_out         <= rd_write_en_reg;
     jump_branch_mux_sel_out <= jump_branch_mux_sel_reg;
+    sel_mux_wb_out          <= sel_mux_wb_reg;
     instr_addr_out          <= instr_addr_reg;
 end architecture rtl;
